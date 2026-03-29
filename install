@@ -17,29 +17,43 @@ git submodule update --init --recursive "${DOTBOT_DIR}"
 # Check for missing external dependencies
 GREEN='\033[0;32m'
 RED='\033[0;31m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 missing=()
+OS="$(uname -s)"
 
 check() { command -v "$1" &>/dev/null || missing+=("$2"); }
-check_font() { ls ~/Library/Fonts/$1* &>/dev/null 2>&1 || ls /Library/Fonts/$1* &>/dev/null 2>&1 || missing+=("$2"); }
-check_app() { [ -d "$1" ] || missing+=("$2"); }
 
-check      "brew"    "Homebrew              -> /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-check_app  "/Applications/Ghostty.app" "Ghostty               -> brew install --cask ghostty"
-check_font "JetBrainsMonoNerdFont"     "Nerd Font             -> brew install --cask font-jetbrains-mono-nerd-font"
-check      "zellij"  "Zellij                -> brew install zellij"
-check      "fzf"     "fzf                   -> brew install fzf"
-check      "zoxide"  "zoxide                -> brew install zoxide"
-check      "thefuck" "thefuck               -> brew install thefuck"
-check      "bat"     "bat (better cat)      -> brew install bat"
-check      "eza"     "eza (better ls)       -> brew install eza"
-check      "rg"      "ripgrep (better grep) -> brew install ripgrep"
-check      "fd"      "fd (better find)      -> brew install fd"
-check      "delta"   "delta (better diff)   -> brew install git-delta"
-check      "tldr"    "tldr (man pages)      -> brew install tldr"
-check      "lazygit" "lazygit (git TUI)     -> brew install lazygit"
+# --- macOS only (GUI terminal, fonts) ---
+if [ "$OS" = "Darwin" ]; then
+    check_font() { ls ~/Library/Fonts/$1* &>/dev/null 2>&1 || ls /Library/Fonts/$1* &>/dev/null 2>&1 || missing+=("$2"); }
+    check_app() { [ -d "$1" ] || missing+=("$2"); }
+
+    check      "brew"    "Homebrew              -> /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+    check_app  "/Applications/Ghostty.app" "Ghostty               -> brew install --cask ghostty"
+    check_font "JetBrainsMonoNerdFont"     "Nerd Font             -> brew install --cask font-jetbrains-mono-nerd-font"
+    check      "zellij"  "Zellij                -> brew install zellij"
+    check      "thefuck" "thefuck               -> brew install thefuck"
+fi
+
+# --- Cross-platform (works on both macOS and Linux) ---
+check      "fzf"     "fzf                   -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install fzf" || echo "apt install fzf / brew install fzf")}"
+check      "zoxide"  "zoxide                -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install zoxide" || echo "curl -sSf https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh")}"
+check      "bat"     "bat (better cat)      -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install bat" || echo "apt install bat")}"
+check      "eza"     "eza (better ls)       -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install eza" || echo "apt install eza / cargo install eza")}"
+check      "rg"      "ripgrep (better grep) -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install ripgrep" || echo "apt install ripgrep")}"
+check      "fd"      "fd (better find)      -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install fd" || echo "apt install fd-find")}"
+check      "delta"   "delta (better diff)   -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install git-delta" || echo "https://github.com/dandavid/delta/releases")}"
+check      "tldr"    "tldr (man pages)      -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install tldr" || echo "pip install tldr / npm install -g tldr")}"
+check      "lazygit" "lazygit (git TUI)     -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install lazygit" || echo "https://github.com/jesseduffield/lazygit/releases")}"
 
 echo ""
+if [ "$OS" = "Darwin" ]; then
+    echo -e "${BLUE}Platform: macOS${NC}"
+else
+    echo -e "${BLUE}Platform: Linux (GUI tools skipped)${NC}"
+fi
+
 if [ ${#missing[@]} -eq 0 ]; then
     echo -e "${GREEN}All external dependencies are installed.${NC}"
 else
@@ -49,5 +63,9 @@ else
         echo -e "  ${RED}✗${NC} $item"
     done
     echo ""
-    echo "  Run 'bash setup.sh' to install all at once."
+    if [ "$OS" = "Darwin" ]; then
+        echo "  Run 'bash setup.sh' to install all at once."
+    else
+        echo "  Install the tools above using your package manager."
+    fi
 fi

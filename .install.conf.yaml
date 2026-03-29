@@ -38,6 +38,7 @@
     ~/.zsh:
     ~/.zshrc:
     ~/Library/Application Support/com.mitchellh.ghostty/config: ghostty/config
+    ~/.config/zellij/config.kdl: zellij/config.kdl
 
 - create:
   - ~/.rtorrent/session

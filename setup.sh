@@ -119,6 +119,13 @@ else
         echo -e "  ${GREEN}✓${NC} fd -> fdfind (linked)"
     fi
 
+    # zellij (from GitHub releases)
+    if skip_or_install "zellij" "zellij"; then
+        echo -e "  ${YELLOW}→${NC} Installing zellij..."
+        bash <(curl -sSL https://zellij.dev/launch)
+        install_done
+    fi
+
     # zoxide (install script)
     if skip_or_install "zoxide" "zoxide"; then
         echo -e "  ${YELLOW}→${NC} Installing zoxide..."

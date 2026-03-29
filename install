@@ -32,12 +32,12 @@ if [ "$OS" = "Darwin" ]; then
     check      "brew"    "Homebrew              -> /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
     check_app  "/Applications/Ghostty.app" "Ghostty               -> brew install --cask ghostty"
     check_font "JetBrainsMonoNerdFont"     "Nerd Font             -> brew install --cask font-jetbrains-mono-nerd-font"
-    check      "zellij"  "Zellij                -> brew install zellij"
     check      "thefuck" "thefuck               -> brew install thefuck"
 fi
 
 # --- Cross-platform (works on both macOS and Linux) ---
-check      "fzf"     "fzf                   -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install fzf" || echo "apt install fzf / brew install fzf")}"
+check      "zellij"  "zellij                -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install zellij" || echo "https://github.com/zellij-org/zellij/releases")}"
+check      "fzf"     "fzf                   -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install fzf" || echo "apt install fzf")}"
 check      "zoxide"  "zoxide                -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install zoxide" || echo "curl -sSf https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh")}"
 check      "bat"     "bat (better cat)      -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install bat" || echo "apt install bat")}"
 check      "eza"     "eza (better ls)       -> ${OS:+$([ "$OS" = "Darwin" ] && echo "brew install eza" || echo "apt install eza / cargo install eza")}"

@@ -12,4 +12,42 @@ cd "${BASEDIR}"
 git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
 git submodule update --init --recursive "${DOTBOT_DIR}"
 
-"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}"
+"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" "${@}" || true
+
+# Check for missing external dependencies
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+missing=()
+
+check() { command -v "$1" &>/dev/null || missing+=("$2"); }
+check_font() { ls ~/Library/Fonts/$1* &>/dev/null 2>&1 || ls /Library/Fonts/$1* &>/dev/null 2>&1 || missing+=("$2"); }
+check_app() { [ -d "$1" ] || missing+=("$2"); }
+
+check      "brew"    "Homebrew              -> /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+check_app  "/Applications/Ghostty.app" "Ghostty               -> brew install --cask ghostty"
+check_font "JetBrainsMonoNerdFont"     "Nerd Font             -> brew install --cask font-jetbrains-mono-nerd-font"
+check      "zellij"  "Zellij                -> brew install zellij"
+check      "fzf"     "fzf                   -> brew install fzf"
+check      "zoxide"  "zoxide                -> brew install zoxide"
+check      "thefuck" "thefuck               -> brew install thefuck"
+check      "bat"     "bat (better cat)      -> brew install bat"
+check      "eza"     "eza (better ls)       -> brew install eza"
+check      "rg"      "ripgrep (better grep) -> brew install ripgrep"
+check      "fd"      "fd (better find)      -> brew install fd"
+check      "delta"   "delta (better diff)   -> brew install git-delta"
+check      "tldr"    "tldr (man pages)      -> brew install tldr"
+check      "lazygit" "lazygit (git TUI)     -> brew install lazygit"
+
+echo ""
+if [ ${#missing[@]} -eq 0 ]; then
+    echo -e "${GREEN}All external dependencies are installed.${NC}"
+else
+    echo -e "${RED}Missing external dependencies (${#missing[@]}):${NC}"
+    echo ""
+    for item in "${missing[@]}"; do
+        echo -e "  ${RED}✗${NC} $item"
+    done
+    echo ""
+    echo "  Run 'bash setup.sh' to install all at once."
+fi

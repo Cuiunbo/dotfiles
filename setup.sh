@@ -90,7 +90,7 @@ else
 
     echo -e "\n==> CLI Tools"
 
-    APT_TOOLS=(fzf bat ripgrep fd-find)
+    APT_TOOLS=(bat ripgrep fd-find)
     for pkg in "${APT_TOOLS[@]}"; do
         cmd="$pkg"
         case "$pkg" in
@@ -104,6 +104,20 @@ else
             install_done
         fi
     done
+
+    # fzf (apt 版本太旧，不支持 --zsh，从 GitHub 下载)
+    if skip_or_install "fzf" "fzf"; then
+        echo -e "  ${YELLOW}→${NC} Installing fzf (from GitHub)..."
+        FZF_VERSION=$(curl -s https://api.github.com/repos/junegunn/fzf/releases/latest | grep -Po '"tag_name": "v\K[^"]*')
+        ARCH=$(uname -m)
+        case "$ARCH" in
+            x86_64)  FZF_ARCH="linux_amd64" ;;
+            aarch64) FZF_ARCH="linux_arm64" ;;
+            *)       FZF_ARCH="linux_amd64" ;;
+        esac
+        curl -fsSL "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-${FZF_ARCH}.tar.gz" | sudo tar -xz -C /usr/local/bin
+        install_done
+    fi
 
     # bat: Ubuntu installs as 'batcat', create alias
     if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
@@ -176,6 +190,21 @@ else
     if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
         echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.shell_local_after
         echo -e "  ${GREEN}✓${NC} Added ~/.local/bin to PATH"
+    fi
+
+    # Set zsh as default shell
+    if command -v zsh &>/dev/null; then
+        ZSH_PATH="$(which zsh)"
+        CURRENT_SHELL="$(getent passwd "$(whoami)" | cut -d: -f7)"
+        if [ "$CURRENT_SHELL" != "$ZSH_PATH" ]; then
+            echo -e "\n==> Setting zsh as default shell..."
+            grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null || echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+            sudo chsh -s "$ZSH_PATH" "$(whoami)" 2>/dev/null \
+                || echo -e "  ${YELLOW}!${NC} chsh failed, run manually: chsh -s $ZSH_PATH"
+            echo -e "  ${GREEN}✓${NC} Default shell -> zsh"
+        else
+            echo -e "\n  ${GREEN}✓${NC} Default shell is already zsh"
+        fi
     fi
 fi
 

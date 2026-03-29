@@ -37,6 +37,7 @@
     ~/.vimrc:
     ~/.zsh:
     ~/.zshrc:
+    ~/Library/Application Support/com.mitchellh.ghostty/config: ghostty/config
 
 - create:
   - ~/.rtorrent/session

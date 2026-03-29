@@ -134,3 +134,66 @@ alias mirrorsite='wget -m -k -K -E -e robots=off'
 
 # Mirror stdout to stderr, useful for seeing data going through a pipe
 alias peek='tee >(cat 1>&2)'
+
+# Zellij session manager
+# zj          - picker: select/create/switch session
+# zj foo      - attach or create session "foo"
+# zj -d foo   - delete session "foo"
+# zj -l       - list all sessions
+zj() {
+    case "${1}" in
+        -d) zellij delete-session "${2}" --force 2>/dev/null && echo "Deleted: ${2}" || echo "Not found: ${2}"; return ;;
+        -l) zellij list-sessions; return ;;
+    esac
+
+    if [ -n "${1}" ]; then
+        if [ -n "$ZELLIJ" ]; then
+            zellij pipe --name switch-session -- "${1}"
+        else
+            zellij attach --create "${1}"
+        fi
+        return
+    fi
+
+    local sessions
+    sessions=$(zellij list-sessions -s 2>/dev/null)
+    if [ -z "$sessions" ]; then
+        printf "Session name (default: main): "
+        read -r name
+        zellij --session "${name:-main}"
+    else
+        local choice
+        choice=$(printf "%s\n[new session]" "$sessions" | fzf \
+            --height=40% --reverse \
+            --prompt="Zellij > " \
+            --header=$'↑↓ select  |  Enter attach  |  Esc cancel  |  Type to filter/create' \
+            --print-query | tail -1)
+        if [ -z "$choice" ]; then
+            [ -n "$ZELLIJ" ] && return || zsh
+        elif [ "$choice" = "[new session]" ]; then
+            printf "Session name (default: main): "
+            read -r name
+            if [ -n "$ZELLIJ" ]; then
+                zellij pipe --name switch-session -- "${name:-main}"
+            else
+                zellij --session "${name:-main}"
+            fi
+        else
+            if [ -n "$ZELLIJ" ]; then
+                zellij pipe --name switch-session -- "$choice"
+            else
+                zellij attach "$choice"
+            fi
+        fi
+    fi
+}
+
+# Randomly switch Ghostty theme among Catppuccin flavors
+ghostty-random() {
+    local config="$HOME/code/dotfiles/ghostty/config"
+    local themes=("Catppuccin Mocha" "Catppuccin Macchiato" "Catppuccin Frappe" "Catppuccin Latte")
+    local pick=${themes[$((RANDOM % 4 + 1))]}
+    local tmpfile="${config}.tmp"
+    awk -v t="$pick" '{if(/^theme = /) print "theme = " t; else print}' "$config" > "$tmpfile" && mv "$tmpfile" "$config"
+    echo "Ghostty theme -> ${pick}"
+}

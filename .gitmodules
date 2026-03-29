@@ -255,3 +255,9 @@
 [submodule "emacs.d/vendor/company-quickhelp"]
 	path = emacs.d/vendor/company-quickhelp
 	url = https://github.com/company-mode/company-quickhelp
+[submodule "zsh/plugins/zsh-autosuggestions"]
+	path = zsh/plugins/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions.git
+[submodule "zsh/plugins/zsh-history-substring-search"]
+	path = zsh/plugins/zsh-history-substring-search
+	url = https://github.com/zsh-users/zsh-history-substring-search.git

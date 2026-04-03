@@ -1,3 +1,8 @@
+# Fallback TERM if the current one is not in terminfo (e.g. xterm-ghostty)
+if ! infocmp "$TERM" &>/dev/null; then
+    export TERM=xterm-256color
+fi
+
 # Functions
 source ~/.shell/functions.sh
 export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
@@ -89,3 +94,4 @@ fi
 if command -v zoxide &> /dev/null; then
     eval "$(zoxide init zsh)"
 fi
+export PATH="$HOME/.local/bin:$PATH"

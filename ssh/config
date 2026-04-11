@@ -1,11 +1,18 @@
-# thunlp 组织 (embody_knowhow, minicpm-o, starvla, etc.)
+# GitHub
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
+
+# Codeup: thunlp 组织 (embody_knowhow, minicpm-o, starvla, etc.)
 Host thunlp.codeup
     HostName codeup.aliyun.com
     User git
     IdentityFile ~/.ssh/id_ed25519_codeup
     IdentitiesOnly yes
 
-# modelbest 组织 (vla-docker, etc.)
+# Codeup: modelbest 组织 (vla-docker, etc.)
 Host modelbest.codeup
     HostName codeup.aliyun.com
     User git

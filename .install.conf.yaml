@@ -18,6 +18,7 @@
     ~/.editrc:
     ~/.emacs.d:
     ~/.emacs:
+    ~/.ssh/config: ssh/config
     ~/.gitconfig:
     ~/.gitignore_global:
     ~/.gnupg/gpg.conf: gnupg/gpg.conf
